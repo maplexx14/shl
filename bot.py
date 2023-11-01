@@ -135,11 +135,9 @@ async def clas(message: types.Message, state: FSMContext):
     normal = 0
     for i in message.text:
         
-        if len(a) == 2 :
-            if a[0] in str(arr) and a[1] in arr1:
+        if len(a) == 2 and a[0] in str(arr) and a[1] in arr1:
                 pass
-        elif len(a) == 3:
-            if a[0] in str(arr) and a[1] in str(arr) and a[2] in arr1:
+        elif len(a) == 3 and a[0] in str(arr) and a[1] in str(arr) and a[2] in arr1:
                 pass
         else:
             normal = 1
@@ -209,7 +207,7 @@ async def menu_answer(message: types.Message, state: FSMContext):
             await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
             
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            buttons = ["Заполнить анкеты заново", "Изменить текст анкеты", "Изменить фото", "Вернуться назад"] 
+            buttons = ["Заполнить анкету заново", "Изменить текст анкеты", "Изменить фото", "Вернуться назад"] 
             keyboard.add(*buttons)
 
             await message.answer(menu_main_text, reply_markup = keyboard)
@@ -241,7 +239,7 @@ async def menu_answer(message: types.Message, state: FSMContext):
         await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
         
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons = ["Заполнить анкеты заново", "Изменить текст анкеты", "Изменить фото", "Вернуться назад"]
+        buttons = ["Заполнить анкету заново", "Изменить текст анкеты", "Изменить фото", "Вернуться назад"]
         keyboard.add(*buttons)
 
         await message.answer(menu_main_text, reply_markup = keyboard)
@@ -328,7 +326,7 @@ async def delete_confirm(message: types.Message, state: FSMContext):
         await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
         
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons = ["Заполнить анкеты заново", "Изменить текст анкеты", "Изменить фото", "Вернуться назад"]
+        buttons = ["Заполнить анкету заново", "Изменить текст анкеты", "Изменить фото", "Вернуться назад"]
 
         keyboard.add(*buttons)
 
