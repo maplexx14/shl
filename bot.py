@@ -204,7 +204,7 @@ async def menu_answer(message: types.Message, state: FSMContext):
         try:
             get_random_anketa(list_of_anketi)
         except ValueError:
-            await message.answer("Мне не удалось подобрать вам никого\nВозможно ваш город или возраст не очень популярный / не корректный")
+            await message.answer("Мне не удалось подобрать вам никого\nВозможно ваш класс или возраст не очень популярный / не корректный")
 
             await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
             
@@ -406,7 +406,7 @@ async def change_text(message: types.Message, state: FSMContext):
         a = anketa[0]
         caption = show_anketa(a[2], a[3], a[4], a[5])   
 
-        await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id)
+        await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = ["Смотреть анкеты", "Моя анкета", "Удалить анкету"]
