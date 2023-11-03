@@ -22,7 +22,9 @@ menu_main_text = 'Выбери действие'
 
 def show_anketa(name, age, clas, text):
     agestr = str(age) 
-    if agestr[1] == '1':
+    if agestr == '11':
+        return f'_Имя_: *{name}*\n_Возраст_: *{age}* лет\n_Класс_: *{clas}*\n_Описание_: *{text}*'
+    elif agestr[-1] == '1':
         return f'_Имя_: *{name}*\n_Возраст_: *{age}* год \n_Класс_: *{clas}*\n_Описание_: *{text}*'
     else:
         return f'_Имя_: *{name}*\n_Возраст_: *{age}* лет\n_Класс_: *{clas}*\n_Описание_: *{text}*'
