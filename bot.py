@@ -20,6 +20,7 @@ BotDB = BotDB('database.db')
 
 menu_main_text = 'Выбери действие'
 
+
 def show_anketa(name, age, clas, text):
     agestr = str(age) 
     if agestr == '11':
@@ -29,12 +30,14 @@ def show_anketa(name, age, clas, text):
     else:
         return f'_Имя_: *{name}*\n_Возраст_: *{age}* лет\n_Класс_: *{clas}*\n_Описание_: *{text}*'
 
+
 def get_random_anketa(list_of_anketi):
     anketa = list_of_anketi[random.randint(0, len(list_of_anketi) - 1)]
     a = anketa
     return [show_anketa(a[2], a[3], a[4], a[5]), BotDB.get_photo_id(a[1])]
         
 # States for dialog navigation
+
 
 class Wait(StatesGroup):
     choosing_gender = State()
@@ -51,6 +54,7 @@ class Wait(StatesGroup):
     delete_confirm = State()
     anketa_reaction = State()
 
+
 @dp.message_handler(commands="start", state = "*")
 async def anketa_start(message: types.Message):
     if(not BotDB.user_exists(message.from_user.id)):
@@ -63,8 +67,8 @@ async def anketa_start(message: types.Message):
 
         anketa = BotDB.get_anketa(message.from_user.id)
         a = anketa[0]
-        caption = show_anketa(a[2], a[3], a[4], a[5], )
-        await bot.send_photo(photo = open(f"/Users/a111/shl/photos/{message.from_user.id}.jpg", "rb"), chat_id = message.from_user.id, caption = caption, parse_mode="Markdown")
+        caption = show_anketa(a[2], a[3], a[4], a[5])
+        await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), chat_id = message.from_user.id, caption = caption, parse_mode="Markdown")
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = ["Смотреть анкеты", "Моя анкета", "Удалить анкету"]
@@ -83,6 +87,7 @@ async def anketa_start(message: types.Message):
          reply_markup=keyboard)
         await Wait.choosing_gender.set()
 
+
 @dp.message_handler(state = Wait.choosing_gender)
 async def choose_gender(message: types.Message, state: FSMContext):
     if message.text not in ["Парень", "Девушка"]:
@@ -96,6 +101,7 @@ async def choose_gender(message: types.Message, state: FSMContext):
     await message.answer("Кто вас интересует?", reply_markup = keyboard)
     await Wait.choosing_interest.set()
 
+
 @dp.message_handler(state = Wait.choosing_interest)
 async def choose_interest(message: types.Message, state: FSMContext):
     if message.text == "Парни" or message.text == "Девушки":
@@ -106,6 +112,7 @@ async def choose_interest(message: types.Message, state: FSMContext):
         await message.answer("Выберите вариант из кнопок ниже")
         return
 
+
 @dp.message_handler(state = Wait.name)
 async def name(message: types.Message, state: FSMContext):
     if len(message.text) > 30:
@@ -114,6 +121,7 @@ async def name(message: types.Message, state: FSMContext):
     await state.update_data(name = message.text)                    
     await message.answer("Сколько вам лет?")
     await Wait.age.set()
+
 
 @dp.message_handler(state = Wait.age)
 async def age(message: types.Message, state: FSMContext):
@@ -128,6 +136,7 @@ async def age(message: types.Message, state: FSMContext):
     
     await message.answer("Напишите свой класс")
     await Wait.clas.set()
+
 
 @dp.message_handler(state = Wait.clas)
 async def clas(message: types.Message, state: FSMContext):
@@ -157,6 +166,7 @@ async def clas(message: types.Message, state: FSMContext):
     await message.answer("Введите описание анкеты до 200 символов (вы можете оставить его пустым и заполнить позже)", reply_markup = keyboard, parse_mode="Markdown")
     await Wait.text.set()
 
+
 @dp.message_handler(state = Wait.text)
 async def text(message: types.Message, state: FSMContext):
     if message.text == "Оставить пустым":
@@ -169,6 +179,7 @@ async def text(message: types.Message, state: FSMContext):
     
     await message.answer("Загрузите своё фото", reply_markup=types.ReplyKeyboardRemove())
     await Wait.photo.set()
+
 
 @dp.message_handler(state = Wait.photo, content_types = ["photo"])
 async def download_photo(message: types.Message, state: FSMContext):
@@ -191,6 +202,7 @@ async def download_photo(message: types.Message, state: FSMContext):
 
     await message.answer(menu_main_text, reply_markup = keyboard)
     await Wait.menu_answer.set()
+
 
 @dp.message_handler(state = Wait.menu_answer)
 async def menu_answer(message: types.Message, state: FSMContext):
@@ -258,40 +270,43 @@ async def menu_answer(message: types.Message, state: FSMContext):
         await message.answer("Выберите вариант из кнопок ниже")
         return
 
+
 @dp.message_handler(state = Wait.anketa_reaction)
 async def anketa_reaction(message: types.Message, state: FSMContext):
     if message.text == "Лайк":
-        
-        data = await state.get_data() ##############
-        d = list(data.values())
 
+        data = await state.get_data()
+        print(data)
+        d = list(data.values())
+        print(d)
         anketa = BotDB.get_anketa(message.from_user.id)
         a = anketa[0]
         caption = show_anketa(a[2], a[3], a[4], a[5])
 
-        list_of_anketi = BotDB.find_anketi(message.from_user.id, data["interest"], data["class"], data["age"])
+
 
         liked_id = data["liked_id"]
-
         await bot.send_message(text = "Вы понравились этому человеку: ", chat_id = liked_id)
-        await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), chat_id = liked_id, caption = caption, parse_mode="Markdown")
-        await bot.send_message(text = f"Начинай общатся, если хочешь - @{message.from_user.username}", chat_id = liked_id)
+        await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), chat_id = liked_id,
+                             caption = caption, parse_mode="Markdown")
+        await bot.send_message(text = f"С тобой хочет начать общаться - @{message.from_user.username}",
+                               chat_id = liked_id)
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = ["Лайк", "Скип", "Вернутся назад"]
         keyboard.add(*buttons)
-
-        anketa = get_random_anketa(list_of_anketi)
         caption = anketa[0]
         photo_id = anketa[1]
-        
-        await bot.send_photo(photo = open(f"photos/{photo_id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
+
+        await bot.send_photo(photo = open(f"photos/{photo_id}.jpg", "rb"), caption = caption,
+                             chat_id = message.from_user.id, parse_mode="Markdown")
         await Wait.anketa_reaction.set()
 
     elif message.text == "Скип":
 
-        data = await state.get_data() ##############
-        list_of_anketi = BotDB.find_anketi(message.from_user.id, data["interest"], data["city"], data["age"])
+        data = await state.get_data()
+        print(data)
+        list_of_anketi = BotDB.find_anketi(message.from_user.id, data["interest"], data["clas"], data["age"])
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = ["Лайк", "Скип", "Вернутся назад"]
@@ -299,7 +314,8 @@ async def anketa_reaction(message: types.Message, state: FSMContext):
 
         caption = get_random_anketa(list_of_anketi)[0]
         photo_id = get_random_anketa(list_of_anketi)[1]
-        await bot.send_photo(photo = open(f"photos/{photo_id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
+        await bot.send_photo(photo = open(f"photos/{photo_id}.jpg", "rb"), caption = caption,
+                             chat_id = message.from_user.id, parse_mode="Markdown")
 
         await Wait.anketa_reaction.set()
 
@@ -313,6 +329,7 @@ async def anketa_reaction(message: types.Message, state: FSMContext):
     else:
         await message.answer("Неизвестная команда")
         return
+
 
 @dp.message_handler(state = Wait.delete_confirm)
 async def delete_confirm(message: types.Message, state: FSMContext):
@@ -337,6 +354,7 @@ async def delete_confirm(message: types.Message, state: FSMContext):
     else:
         await message.answer("Выберите вариант из кнопок ниже")
         return
+
 
 @dp.message_handler(state = Wait.my_anketa_answer)
 async def my_anketa_answer(message: types.Message, state: FSMContext):
@@ -378,6 +396,7 @@ async def my_anketa_answer(message: types.Message, state: FSMContext):
         await message.answer("Выберите вариант из кнопок ниже")
         return
 
+
 @dp.message_handler(state = Wait.change_text)
 async def change_text(message: types.Message, state: FSMContext):
     if message.text == "Оставить пустым":
@@ -406,7 +425,7 @@ async def change_text(message: types.Message, state: FSMContext):
         a = anketa[0]
         caption = show_anketa(a[2], a[3], a[4], a[5])   
 
-        await bot.send_photo(photo = open(f"photos/{message.from_user.id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
+        await bot.send_photo(photo=open(f"photos/{message.from_user.id}.jpg", "rb"), caption = caption, chat_id = message.from_user.id, parse_mode="Markdown")
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = ["Смотреть анкеты", "Моя анкета", "Удалить анкету"]
@@ -414,6 +433,7 @@ async def change_text(message: types.Message, state: FSMContext):
 
         await message.answer(menu_main_text, reply_markup = keyboard)
         await Wait.menu_answer.set()
+
 
 @dp.message_handler(state = Wait.change_photo, content_types = ["photo"])
 async def change_photo(message: types.Message, state: FSMContext):

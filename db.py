@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class BotDB:
 
     # name of your database file here 
@@ -35,9 +36,9 @@ class BotDB:
         self.cursor.execute("INSERT INTO `users` (`user_id`) VALUES (?)", (user_id,))
         return self.conn.commit()
 
-    def add_anketa(self, user_id, gender, interest, name, age, clas, text):
+    def add_anketa(self, user_id, gender, interest, name, age, city, text):
         self.cursor.execute("INSERT INTO `anketi` (`users_id`, `name`, `age`, `city`, `text`, `gender`, `interest`) VALUES\
-            (?, ?, ?, ?, ?, ?, ?)", (self.get_user_id(user_id), name, age, clas, text, gender, interest))
+            (?, ?, ?, ?, ?, ?, ?)", (self.get_user_id(user_id), name, age, city.title(), text, gender, interest))
         return self.conn.commit()
 
     def update_text(self, user_id, new_text):
@@ -63,7 +64,9 @@ class BotDB:
         if interest == "девушки":
             gender = "девушка"
 
-        result = self.cursor.execute("SELECT * FROM `anketi` WHERE `users_id` != ? AND `gender` = ? AND `city` = ? AND `age` BETWEEN ? AND ?", (self.get_user_id(user_id), gender, city, int(age) - 1, int(age) + 1))
+        result = self.cursor.execute("SELECT * FROM `anketi` WHERE `users_id` != ? AND `gender` = ? AND `city` = ? AND"
+                                     "`age` BETWEEN ? AND ?", (self.get_user_id(user_id), gender, city.title(), int(age)
+                                                                                                    - 1, int(age) + 1))
 
         return result.fetchall()
 
